@@ -1,0 +1,53 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/DrivetrainSubsystem": "Subsystem",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/SmartDashboard/Field2d": "Field2d"
+    },
+    "windows": {
+      "/SmartDashboard/Field2d": {
+        "Robot": {
+          "length": 0.4749999940395355,
+          "width": 0.4749999940395355
+        },
+        "Swerve Modules": {
+          "image": "resources/swerve_module.png",
+          "length": 0.4000000059604645,
+          "width": 0.4000000059604645
+        },
+        "image": "C:\\Users\\rcorn\\workspace\\FRC Java\\Swerve-Demo\\resources\\2022-field.png",
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "SmartDashboard": {
+      "Field2d": {
+        "open": true
+      },
+      "open": true
+    },
+    "transitory": {
+      "Shuffleboard": {
+        "Drivetrain": {
+          "Front Left Module": {
+            "open": true
+          },
+          "Front Right Module": {
+            "open": true
+          },
+          "open": true
+        },
+        "open": true
+      },
+      "SmartDashboard": {
+        "open": true
+      }
+    }
+  }
+}
