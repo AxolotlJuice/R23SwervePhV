@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import static frc.robot.Constants.*;
 
-public class AimVision extends PIDCommand {
+public class AutoAimVision extends PIDCommand {
 
     private static double       kP = .02, kI = .02, kD = 0;
     private double              kToleranceDeg = .5;
     private PhotonCamera        phCamera;
     private boolean             hasTarget, targetLocked;
 
-    public AimVision(PhotonCamera phCamera, ){
+    public AutoAimVision(PhotonCamera phCamera, ){
         var result = phCamera.getLatestResult();
         
         if(result.hasTarget){
@@ -25,6 +25,14 @@ public class AimVision extends PIDCommand {
                                     TARGET_HEIGHT_METERS,
                                     CAMERA_PITCH_RADIANS,
                                     Units.degreesToRadians(result.getBestTarget().getPitch()));
+
+            //figure out the y traslation
+            //calc distance based on x and y
+            //find need yaw, based on closest apirl tag
+            //use swerve drive method to translate
+            //find what data PipelineResult provides
+        }
+        
     }
 
     public void initialize(){
