@@ -34,6 +34,7 @@ package frc.robot.commands;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -51,9 +52,11 @@ public class AutoAimVision extends PIDCommand {
     public AutoAimVision(PhotonCamera phCamera, ){
         
         var result = phCamera.getLatestResult();
-        if(reflectiveTape){
+        PhotonPoseEstimator.leastAbiguityStrategy();
+
+        //if(reflectiveTape){
             
-        }
+        //}
         
         /* 
         while(){
@@ -64,6 +67,7 @@ public class AutoAimVision extends PIDCommand {
             
                 if(result.hasTarget){
                 double range =
+                hehe haha
                                 PhotonUtils.calculateDistanceToTargetMeters(
                                         CAMERA_HEIGHT_METERS,
                                         TARGET_HEIGHT_METERS,
