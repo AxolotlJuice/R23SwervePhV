@@ -34,6 +34,8 @@ public class RobotContainer
 
   private final PhotonCamera phCamera = new PhotonCamera("phCamera" );
 
+  private final PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprlFieldLayout, poseStrategy, phCamera, rbtCameraDist);
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */

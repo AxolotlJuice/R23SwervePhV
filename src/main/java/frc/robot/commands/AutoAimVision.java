@@ -39,6 +39,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import frc.robot.subsystems.SwerveDriveBase;
+
 import static frc.robot.Constants.*;
 
 public class AutoAimVision extends PIDCommand {
@@ -47,38 +49,23 @@ public class AutoAimVision extends PIDCommand {
     private double              kToleranceDeg = .5;
     private PhotonCamera        phCamera;
     private boolean             hasTarget, targetLocked;
-    
+    private double              instThrottle;
+    private double              instStrafe;
 
-    public AutoAimVision(PhotonCamera phCamera, ){
-        
+    public AutoAimVision(PhotonCamera phCamera, SwerveDriveBase sDriveBase, PhotonPoseEstimator photonPoseEstimator){
+        //the below is all sudo-code
         var result = phCamera.getLatestResult();
-        PhotonPoseEstimator.leastAbiguityStrategy();
-
-        //if(reflectiveTape){
-            
-        //}
         
-        /* 
-        while(){
-            var result = phCamera.getLatestResult();
-            
-            translation = PhotonUtils.estimateCameraToTargetTranslation(
-                distanceMeters, Rotation2d.fromDegrees(-target.getYaw()));
-            
-                if(result.hasTarget){
-                double range =
-                hehe haha
-                                PhotonUtils.calculateDistanceToTargetMeters(
-                                        CAMERA_HEIGHT_METERS,
-                                        TARGET_HEIGHT_METERS,
-                                        CAMERA_PITCH_RADIANS,
-                                        Units.degreesToRadians(result.getBestTarget().getPitch()));
+        photonPoseEstimator.leastAbiguityStrategy(result);
 
-                
-                
-            }
-        }
-        */
+        rotateRobot(-result.getBestTarget.getYaw());
+        result = phCamera.getLatestResult();
+        
+        instThrottle = result.getBestTarget.getDistance() * Math.sin(phCamera.getBestTarget.getYaw());
+        instStrafe = phCamera.getBestTarget.getDistance() * Math.cos(phCamera.getBestTarget.getYaw());
+        sDriveBase.drive(instThrottle, instStrafe, 0.0);
+
+
     }
 
     public void initialize(){
