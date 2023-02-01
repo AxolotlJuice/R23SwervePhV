@@ -54,6 +54,7 @@ public class RobotContainer
     new AprilTag(8, new Pose3d(Units.inchesToMeters( 40.45), Units.inchesToMeters( 42.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, 0.0)))
   ), Units.inchesToMeters(651.25), Units.inchesToMeters(315.5));
 
+  // These are placeholder values. Our robot is not actually 0 by 0 by 0
   Transform3d rbtCameraDist = new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0,0,0));
 
   private final PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprlFieldLayout, PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS, phCamera, rbtCameraDist);
