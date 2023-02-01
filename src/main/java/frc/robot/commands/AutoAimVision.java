@@ -36,6 +36,8 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
+
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
@@ -53,16 +55,17 @@ public class AutoAimVision extends PIDCommand {
     private double              instStrafe;
 
     public AutoAimVision(PhotonCamera phCamera, SwerveDriveBase sDriveBase, PhotonPoseEstimator photonPoseEstimator){
-        //the below is all sudo-code
+        // the below is all sudo-code
         var result = phCamera.getLatestResult();
         
-        photonPoseEstimator.leastAbiguityStrategy(result);
+        // Unsure if this line is even useful as this is already done, commented out
+        // photonPoseEstimator.leastAbiguityStrategy(result);
 
-        rotateRobot(-result.getBestTarget.getYaw());
+        rotateRobot(-result.getBestTarget().getYaw());
         result = phCamera.getLatestResult();
         
-        instThrottle = result.getBestTarget.getDistance() * Math.sin(phCamera.getBestTarget.getYaw());
-        instStrafe = phCamera.getBestTarget.getDistance() * Math.cos(phCamera.getBestTarget.getYaw());
+        instThrottle = hypotFromTransform3d(result.getBestTarget().getBestCameraToTarget()) * Math.sin(result.getBestTarget().getYaw());
+        instStrafe = hypotFromTransform3d(result.getBestTarget().getBestCameraToTarget()) * Math.cos(result.getBestTarget().getYaw());
         sDriveBase.drive(instThrottle, instStrafe, 0.0);
 
 
@@ -81,4 +84,10 @@ public class AutoAimVision extends PIDCommand {
 
     }
     
+    private double hypotFromTransform3d(Transform3d tr) {
+        return Math.sqrt(Math.pow(tr.getX(), 2) + Math.pow(tr.getY(), 2));
+    }
+
+    // Placeholder methods so errors dont annoy me
+    void rotateRobot(double statement) { }
 }
