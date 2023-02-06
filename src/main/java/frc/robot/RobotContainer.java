@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.Arrays;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+
 import Team4450.Lib.Util;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -20,6 +22,8 @@ import frc.robot.commands.ResetToAbsoluteCommand;
 import frc.robot.commands.ResetToForwardCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.subsystems.SwerveDriveBase;
+import frc.robot.Constants;
+
 //import edu.wpi.first.wpilibj2.command.button.Button;
 //Above import is depreciated
 
@@ -32,6 +36,7 @@ import frc.robot.subsystems.SwerveDriveBase;
  */
 public class RobotContainer 
 {
+  
   // The robot's subsystems and commands are defined here.
 
   public final SwerveDriveBase m_driveBase = new SwerveDriveBase();
@@ -40,18 +45,8 @@ public class RobotContainer
 
   private final PhotonCamera phCamera = new PhotonCamera("phCamera" );
 
-  private final AprilTagFieldLayout aprlFieldLayout = new AprilTagFieldLayout(Arrays.asList(
-    new AprilTag(1, new Pose3d(Units.inchesToMeters(610.77), Units.inchesToMeters( 42.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, Math.PI))),
-    new AprilTag(2, new Pose3d(Units.inchesToMeters(610.77), Units.inchesToMeters(108.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, Math.PI))),
-    new AprilTag(3, new Pose3d(Units.inchesToMeters(610.77), Units.inchesToMeters(174.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, Math.PI))),
-    new AprilTag(4, new Pose3d(Units.inchesToMeters(636.96), Units.inchesToMeters(265.74), Units.inchesToMeters(27.38), new Rotation3d(0.0, 0.0, Math.PI))),
-    new AprilTag(5, new Pose3d(Units.inchesToMeters( 14.25), Units.inchesToMeters(265.74), Units.inchesToMeters(27.38), new Rotation3d(0.0, 0.0, 0.0))),
-    new AprilTag(6, new Pose3d(Units.inchesToMeters( 40.45), Units.inchesToMeters(174.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, 0.0))),
-    new AprilTag(7, new Pose3d(Units.inchesToMeters( 40.45), Units.inchesToMeters(108.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, 0.0))),
-    new AprilTag(8, new Pose3d(Units.inchesToMeters( 40.45), Units.inchesToMeters( 42.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, 0.0)))
-  ), Units.inchesToMeters(651.25), Units.inchesToMeters(315.5));
-
-  private final PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprlFieldLayout, poseStrategy, phCamera, rbtCameraDist);
+  private final PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(Constants.APRILTAG_LAYOUT, PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS,
+       phCamera, Constants.ROBOTTOLIMELIGHT);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.

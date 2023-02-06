@@ -1,84 +1,109 @@
-/* 
-figure out the y traslation
-calc distance based on x and y
-estimateCameraToTargetTranslation()
-find need yaw, based on closest apirl tag
-use swerve drive method to translate
-find what data PipelineResult provides
-                
-use:
-    estimateCameraToTargetTranslation(estimateFieldToRobotAprilTag(), )
-    Translation2d translation = PhotonUtils.estimateCameraToTargetTranslation(
-    distanceMeters, Rotation2d.fromDegrees(-target.getYaw()));
-                    
-    PhotonPoseEstimatorTest
-
-    continue...
-
-            
-methods to remember:
-    getTargets
-
-Plan:   1. create PhotonCamera
-        2. get latest photon result
-        3. distiguish between apirlTag and reflective tape
-            4. get distance to target
-            5. get cameraToTargetYaw
-            6.enter into swerve drive
-        3. if(aprilTag)
-            4. 
-
-
-*/
 package frc.robot.commands;
 
+
+import Team4450.Lib.*;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.SwerveDriveBase;
 
+
 import static frc.robot.Constants.*;
+
 
 public class AutoAimVision extends PIDCommand {
 
+
     private static double       kP = .02, kI = .02, kD = 0;
     private double              kToleranceDeg = .5;
-    private PhotonCamera        phCamera;
     private boolean             hasTarget, targetLocked;
+   
     private double              instThrottle;
     private double              instStrafe;
 
-    public AutoAimVision(PhotonCamera phCamera, SwerveDriveBase sDriveBase, PhotonPoseEstimator photonPoseEstimator){
-        //the below is all sudo-code
-        var result = phCamera.getLatestResult();
-        
-        photonPoseEstimator.leastAbiguityStrategy(result);
 
-        rotateRobot(-result.getBestTarget.getYaw());
-        result = phCamera.getLatestResult();
-        
-        instThrottle = result.getBestTarget.getDistance() * Math.sin(phCamera.getBestTarget.getYaw());
-        instStrafe = phCamera.getBestTarget.getDistance() * Math.cos(phCamera.getBestTarget.getYaw());
-        sDriveBase.drive(instThrottle, instStrafe, 0.0);
+    private SwerveDriveBase     sDriveBase;
+    private PhotonCamera        phCamera;
+    private PhotonPoseEstimator phPoseEstimator;
+    private Pose3d              latestAprilPose3d;
+    private double              latestAprilTimestamp;
+    private double              targetToRobotDist;
+    private Pose3d              latestTargetPose;
+    private Pose3d              targetPose3d;
+    private AprilTagFieldLayout tagLayout;
+    private Translation2d       limeLightToCenter;
 
+
+    public AutoAimVision(PhotonCamera phCamera,
+                            SwerveDriveBase sDriveBase,
+                            AprilTagFieldLayout tagLayout,
+                            PhotonPoseEstimator phPoseEstimator,
+                            Translation2d limeLightToCenter,
+                            Translation2d PIDOrSomething)
+    {
+       
+        this.phCamera = phCamera;
+        this.sDriveBase = sDriveBase;
+        this.phPoseEstimator = phPoseEstimator;
+        this.tagLayout = tagLayout;
+        this.limeLightToCenter = limeLightToCenter;
 
     }
+
 
     public void initialize(){
-        
+        //check, isFinished = true?
+
+        //obtains the Robots pose according to the PhotonVision
+        var result = phCamera.getLatestResult();
+       
+        latestAprilPose3d = phPoseEstimator.update().get().estimatedPose;
+        latestAprilTimestamp = phPoseEstimator.update().get().timestampSeconds;
+       
+        //Find the target's pose
+        targetPose3d = tagLayout.getTags().get(result.getBestTarget().getFiducialId()).pose;
+
+
+        //merges PhotonVision pose and Odometry pose
+        sDriveBase.getOdometry().addVisionMeasurement(latestAprilPose3d.toPose2d(), latestAprilTimestamp);
+
+
+        targetToRobotDist = Math.sqrt(Math.pow(Math.abs(latestTargetPose.getX() - latestAprilPose3d.getX()), 2.0)
+            + Math.pow(Math.abs(latestTargetPose.getY() - latestAprilPose3d.getY()), 2.0));
+
+
+        //claculate distance between aprilTag and robot (turn pose2d ---> pose3d)
+
+
+        //get the direction the robot needs to go in
+        instThrottle = targetToRobotDist * Math.sin(result.getBestTarget().getYaw());
+        instStrafe = targetToRobotDist * Math.cos(result.getBestTarget().getYaw());
+       
+        //drive in the drection
+        sDriveBase.drive(instThrottle, instStrafe, -result.getBestTarget().getYaw());
+
+
+        //add reaction is not apriltags present
     }
+
 
     public boolean isFinished(){
-        //change later v
-        return false;
+        return true;
     }
+
 
     public void end(){
+        
 
     }
-    
+   
 }
