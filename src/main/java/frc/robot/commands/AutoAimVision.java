@@ -34,11 +34,15 @@ public class AutoAimVision extends PIDCommand {
     private SwerveDriveBase     sDriveBase;
     private PhotonCamera        phCamera;
     private PhotonPoseEstimator phPoseEstimator;
-    private Pose3d              latestAprilPose3d;
+   
     private double              latestAprilTimestamp;
     private double              targetToRobotDist;
+
+    private Pose2d              latestAprilPose2d;
     private Pose3d              latestTargetPose;
-    private Pose3d              targetPose3d;
+    private Pose2d              latestRobotPose;
+    private Pose2d              targetPose2d;
+    
     private AprilTagFieldLayout tagLayout;
     private Translation2d       limeLightToCenter;
 
@@ -62,37 +66,33 @@ public class AutoAimVision extends PIDCommand {
 
     public void initialize(){
         //check, isFinished = true?
-
-        //obtains the Robots pose according to the PhotonVision
+        
         var result = phCamera.getLatestResult();
-       
-        latestAprilPose3d = phPoseEstimator.update().get().estimatedPose;
-        latestAprilTimestamp = phPoseEstimator.update().get().timestampSeconds;
-       
-        //Find the target's pose
-        targetPose3d = tagLayout.getTags().get(result.getBestTarget().getFiducialId()).pose;
 
+        if(result.hasTargets()){
+            //obtains the Robots pose according to the PhotonVision
+            latestAprilPose2d = phPoseEstimator.update().get().estimatedPose.toPose2d();
+            latestAprilTimestamp = phPoseEstimator.update().get().timestampSeconds;
+        
+            //Find the target's pose
+            targetPose2d = tagLayout.getTags().get(result.getBestTarget().getFiducialId()).pose.toPose2d();
 
-        //merges PhotonVision pose and Odometry pose
-        sDriveBase.getOdometry().addVisionMeasurement(latestAprilPose3d.toPose2d(), latestAprilTimestamp);
+            //merges PhotonVision pose and Odometry pose to calculate to the lateset robot pose
+            sDriveBase.getOdometry().addVisionMeasurement(latestAprilPose2d, latestAprilTimestamp);
+            latestRobotPose = sDriveBase.getOdometry().getEstimatedPosition();
 
+            //claculate distance between aprilTag and robot (turn pose2d ---> pose3d)
+            targetToRobotDist = Math.sqrt(Math.pow(Math.abs(targetPose2d.getX() - latestRobotPose.getX()), 2.0)
+                + Math.pow(Math.abs(targetPose2d.getY() - latestRobotPose.getY()), 2.0));
 
-        targetToRobotDist = Math.sqrt(Math.pow(Math.abs(latestTargetPose.getX() - latestAprilPose3d.getX()), 2.0)
-            + Math.pow(Math.abs(latestTargetPose.getY() - latestAprilPose3d.getY()), 2.0));
+            //get the direction the robot needs to go in
+            instThrottle = targetToRobotDist * Math.sin(result.getBestTarget().getYaw());
+            instStrafe = targetToRobotDist * Math.cos(result.getBestTarget().getYaw());
+        
+            //drive in the drection
+            sDriveBase.drive(instThrottle, instStrafe, -result.getBestTarget().getYaw());
 
-
-        //claculate distance between aprilTag and robot (turn pose2d ---> pose3d)
-
-
-        //get the direction the robot needs to go in
-        instThrottle = targetToRobotDist * Math.sin(result.getBestTarget().getYaw());
-        instStrafe = targetToRobotDist * Math.cos(result.getBestTarget().getYaw());
-       
-        //drive in the drection
-        sDriveBase.drive(instThrottle, instStrafe, -result.getBestTarget().getYaw());
-
-
-        //add reaction is not apriltags present
+        }
     }
 
 
