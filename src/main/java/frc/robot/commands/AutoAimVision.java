@@ -20,7 +20,7 @@ import frc.robot.subsystems.SwerveDriveBase;
 import static frc.robot.Constants.*;
 
 
-public class AutoAimVision extends CommandBase {
+public class AutoAimVision extends PIDCommand {
 
 
     private static double       kP = .02, kI = .02, kD = 0;
@@ -51,21 +51,20 @@ public class AutoAimVision extends CommandBase {
                             SwerveDriveBase sDriveBase,
                             AprilTagFieldLayout tagLayout,
                             PhotonPoseEstimator phPoseEstimator,
-                            Translation2d limeLightToCenter)
+                            Translation2d limeLightToCenter,
+                            Translation2d PIDOrSomething)
     {
+       
         this.phCamera = phCamera;
         this.sDriveBase = sDriveBase;
         this.phPoseEstimator = phPoseEstimator;
         this.tagLayout = tagLayout;
         this.limeLightToCenter = limeLightToCenter;
+
     }
 
 
     public void initialize(){
-        double initialDist = 0.0;
-    }
-
-    public void execute(){
         //check, isFinished = true?
         
         var result = phCamera.getLatestResult();
@@ -86,14 +85,13 @@ public class AutoAimVision extends CommandBase {
             targetToRobotDist = Math.sqrt(Math.pow(Math.abs(targetPose2d.getX() - latestRobotPose.getX()), 2.0)
                 + Math.pow(Math.abs(targetPose2d.getY() - latestRobotPose.getY()), 2.0));
 
-            if(targetToRobotDist < initialDist)
-                initialDist = targetToRobotDist;
             //get the direction the robot needs to go in
-            instThrottle = 0.5*(targetToRobotDist * Math.sin(result.getBestTarget().getYaw()))/52.187;
-            instStrafe = 0.5*(targetToRobotDist * Math.cos(result.getBestTarget().getYaw()))/52.187;
+            instThrottle = targetToRobotDist * Math.sin(result.getBestTarget().getYaw());
+            instStrafe = targetToRobotDist * Math.cos(result.getBestTarget().getYaw());
         
             //drive in the drection
             sDriveBase.drive(instThrottle, instStrafe, -result.getBestTarget().getYaw());
+
         }
     }
 
@@ -104,7 +102,7 @@ public class AutoAimVision extends CommandBase {
 
 
     public void end(){
-        //use arm to score here
+        
 
     }
    
