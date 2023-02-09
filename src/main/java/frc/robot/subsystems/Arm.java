@@ -24,15 +24,20 @@ public class Arm {
         
         radius = targetPose.getX()/Math.acos(targetPose.getX());
         radians = Math.asin(targetPose.getY()/radius);
+        actionTime = 0.5/radius
+        2ndPower = radius/()
 
 
+        armMotor1.setPower(0.5);
+        armMotor2.setPower(2ndPower);
+        sleep(actionTime);
 
-        xDist = radius * Math.cos(radians);
+        //xDist = radius * Math.cos(radians);
         //yDist = radius * Math.sin(radians);
         
     }
 
-    public void setArmPower(double power){
+    public void setArmPower(double power, double degrees, double distExtension){
 
     }
 
