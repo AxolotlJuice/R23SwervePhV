@@ -25,9 +25,9 @@ public class Arm {
         radius = targetPose.getX()/Math.acos(targetPose.getX());
         radians = Math.asin(targetPose.getY()/radius);
 
-        
 
-        //xDist = radius * Math.cos(radians);
+
+        xDist = radius * Math.cos(radians);
         //yDist = radius * Math.sin(radians);
         
     }
