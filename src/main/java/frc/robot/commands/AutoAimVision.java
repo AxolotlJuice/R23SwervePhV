@@ -13,14 +13,13 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.SwerveDriveBase;
 
 
 import static frc.robot.Constants.*;
 
 
-public class AutoAimVision extends PIDCommand {
+public class AutoAimVision extends CommandBase {
 
 
     private static double       kP = .02, kI = .02, kD = 0;
@@ -29,6 +28,7 @@ public class AutoAimVision extends PIDCommand {
    
     private double              instThrottle;
     private double              instStrafe;
+    private double              greatestDistValue;
 
 
     private SwerveDriveBase     sDriveBase;
@@ -51,8 +51,7 @@ public class AutoAimVision extends PIDCommand {
                             SwerveDriveBase sDriveBase,
                             AprilTagFieldLayout tagLayout,
                             PhotonPoseEstimator phPoseEstimator,
-                            Translation2d limeLightToCenter,
-                            Translation2d PIDOrSomething)
+                            Translation2d limeLightToCenter)
     {
        
         this.phCamera = phCamera;
@@ -65,10 +64,13 @@ public class AutoAimVision extends PIDCommand {
 
 
     public void initialize(){
-        //check, isFinished = true?
+        greatestDistValue = 0.0;
+    }
+
+    public void execute(){
         
         var result = phCamera.getLatestResult();
-
+        
         if(result.hasTargets()){
             //obtains the Robots pose according to the PhotonVision
             latestAprilPose2d = phPoseEstimator.update().get().estimatedPose.toPose2d();
@@ -84,17 +86,22 @@ public class AutoAimVision extends PIDCommand {
             //claculate distance between aprilTag and robot (turn pose2d ---> pose3d)
             targetToRobotDist = Math.sqrt(Math.pow(Math.abs(targetPose2d.getX() - latestRobotPose.getX()), 2.0)
                 + Math.pow(Math.abs(targetPose2d.getY() - latestRobotPose.getY()), 2.0));
+            
+            if(targetToRobotDist > greatestDistValue)
+                greatestDistValue = targetToRobotDist;
 
             //get the direction the robot needs to go in
-            instThrottle = targetToRobotDist * Math.sin(result.getBestTarget().getYaw());
-            instStrafe = targetToRobotDist * Math.cos(result.getBestTarget().getYaw());
+            instThrottle = 0.5*(targetToRobotDist * Math.sin(result.getBestTarget().getYaw()))/greatestDistValue;
+            instStrafe = 0.5*(targetToRobotDist * Math.cos(result.getBestTarget().getYaw()))/greatestDistValue;
         
             //drive in the drection
             sDriveBase.drive(instThrottle, instStrafe, -result.getBestTarget().getYaw());
-
         }
+        
+        if((latestRobotPose == TARGET_POSE_WITH_ADJUST.get(result.getBestTarget().getFiducialId() + 8)) || !result.hasTargets())
+            isFinished();
+    
     }
-
 
     public boolean isFinished(){
         return true;
@@ -102,8 +109,6 @@ public class AutoAimVision extends PIDCommand {
 
 
     public void end(){
-        
-
+        //score with arm
     }
-   
 }
