@@ -46,9 +46,12 @@ public class Arm {
         //xDist = radius * Math.cos(radians);
         //yDist = radius * Math.sin(radians);
         
+
+        //trying PID
+        //use get methods and convert to Pose 3d
     }
 
-    public void setArmPower(double power, double degrees, double distExtension){
+    public void setArmPower(double extensionPower, double degrees, double distExtension){
 
     }
 
