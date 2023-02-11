@@ -1,6 +1,12 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
+
+import Team4450.Lib.SynchronousPID;
+import Team4450.Lib.Wpilib.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 
 public class Arm {
@@ -14,17 +20,19 @@ public class Arm {
     private double          radianPerSecond;
 
     //channel tbd
-    private PWMSparkMax     armMotor1 = new PWMSparkMax(0);
+    private CANSparkMax     armMotor1 = new CANSparkMax(0, CANSparkMaxLowLevel.MotorType.kBrushless);
 
     //channel tbd
-    private PWMSparkMax     armMotor2 = new PWMSparkMax(0);
+    private CANSparkMax     armMotor2 = new CANSparkMax(0, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+    private PIDController   pidController = new PIDController()
 
     public Arm(){
-
+        SynchronousPID
     }
 
     public void initialize(){
-
+        armMotor1.getEncoder().getPosition()
     }
 
     public void periodic(){
@@ -38,10 +46,11 @@ public class Arm {
         actionTime = 0.5/radius;
         power2 = radius/(radianPerSecond);
 
-
+    
         armMotor1.set(0.5);
-        armMotor2.set(power2);
-        sleep(actionTime);
+        armMotor2.set(0.5);
+        
+        PIDController
 
         //xDist = radius * Math.cos(radians);
         //yDist = radius * Math.sin(radians);
@@ -49,6 +58,11 @@ public class Arm {
 
         //trying PID
         //use get methods and convert to Pose 3d
+
+        //MOTORS: CANSparkMax talon:TalonFX
+        //relativeEncoder
+        //Talon TalonFXMotorController
+        armMotor1.getPIDController
     }
 
     public void setArmPower(double extensionPower, double degrees, double distExtension){
