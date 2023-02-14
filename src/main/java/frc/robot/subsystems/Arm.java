@@ -8,24 +8,32 @@ import Team4450.Lib.Wpilib.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.SimultaneousArmPID;
 
 public class Arm {
 
-    private Pose2d          armPose;
+    private Pose2d                  armPose;
 
-    private double          radius;
-    private double          radians;
-    private double          actionTime;
-    private double          power2;
-    private double          radianPerSecond;
+    private double                  radius;
+    private double                  radians;
+    private double                  actionTime;
+    private double                  power2;
+    private double                  radianPerSecond;
+    private double                  targetExtend;
+    private double                  targetRotate;
 
     //channel tbd
-    private CANSparkMax     armMotor1 = new CANSparkMax(0, CANSparkMaxLowLevel.MotorType.kBrushless);
+    private CANSparkMax             armMotor1 = new CANSparkMax(0, CANSparkMaxLowLevel.MotorType.kBrushless);
 
     //channel tbd
-    private CANSparkMax     armMotor2 = new CANSparkMax(0, CANSparkMaxLowLevel.MotorType.kBrushless);
+    private CANSparkMax             armMotor2 = new CANSparkMax(0, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-    private PIDController   pidController = new PIDController()
+    private PIDController           pidController = new PIDController();
+
+    private Command			        command = null;
+    private SequentialCommandGroup  commands = null;
 
     public Arm(){
         SynchronousPID
@@ -40,33 +48,34 @@ public class Arm {
     }
 
     public void setArmPose(double power, Pose2d targetPose){
-        double radianPerSecond = 0.0;
+        
         radius = targetPose.getX()/Math.acos(targetPose.getX());
         radians = Math.asin(targetPose.getY()/radius);
         actionTime = 0.5/radius;
         power2 = radius/(radianPerSecond);
+        //set position coversion factor by measure the distance extended after one revolution
+        targetExtend = armMotor1.getEncoder().getPositionConversionFactor() * radius;
 
-    
-        armMotor1.set(0.5);
-        armMotor2.set(0.5);
-        
-        PIDController
+        targetRotate = armMotor2.getEncoder().getCountsPerRevolution() * (radians/(2 * Math.PI));
 
-        //xDist = radius * Math.cos(radians);
-        //yDist = radius * Math.sin(radians);
-        
+        commands = new SequentialCommandGroup();
 
-        //trying PID
-        //use get methods and convert to Pose 3d
+        command = new SimultaneousArmPID(armMotor1, armMotor2, targetExtend, targetRotate);
+        commands.addCommands(command);
 
-        //MOTORS: CANSparkMax talon:TalonFX
-        //relativeEncoder
-        //Talon TalonFXMotorController
-        armMotor1.getPIDController
+        commands.schedule();
     }
 
-    public void setArmPower(double extensionPower, double degrees, double distExtension){
+    public void setArmPower(double ticks, double distExtension){
+        
+        targetExtend
+        
+        commands = new SequentialCommandGroup();
 
+        command = new SimultaneousArmPID(armMotor1, armMotor2, targetExtend, targetRotate);
+        commands.addCommands(command);
+
+        commands.schedule();
     }
 
 }
