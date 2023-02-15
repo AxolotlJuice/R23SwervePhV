@@ -24,11 +24,14 @@ public class AutoAimVision extends CommandBase {
 
     private static double       kP = .02, kI = .02, kD = 0;
     private double              kToleranceDeg = .5;
-    private boolean             hasTarget, targetLocked;
+    private boolean             hasTarget, targetLocked, hadTargets;
    
     private double              instThrottle;
     private double              instStrafe;
     private double              greatestDistValue;
+    private double              startTime;
+    private double              tempTime;
+    private double              elapsedTime;
 
 
     private SwerveDriveBase     sDriveBase;
@@ -45,6 +48,8 @@ public class AutoAimVision extends CommandBase {
     
     private AprilTagFieldLayout tagLayout;
     private Translation2d       limeLightToCenter;
+
+    private SynchronousPID          pid1 = new SynchronousPID(0, 0, 0);
 
 
     public AutoAimVision(PhotonCamera phCamera,
@@ -65,6 +70,9 @@ public class AutoAimVision extends CommandBase {
 
     public void initialize(){
         greatestDistValue = 0.0;
+
+        startTime = Util.timeStamp();
+        tempTime = Util.timeStamp();
     }
 
     public void execute(){
@@ -72,6 +80,12 @@ public class AutoAimVision extends CommandBase {
         var result = phCamera.getLatestResult();
         
         if(result.hasTargets()){
+
+            hadTargets = true;
+
+            elapsedTime = Util.getElaspedTime(tempTime);
+
+
             //obtains the Robots pose according to the PhotonVision
             latestAprilPose2d = phPoseEstimator.update().get().estimatedPose.toPose2d();
             latestAprilTimestamp = phPoseEstimator.update().get().timestampSeconds;
@@ -81,6 +95,26 @@ public class AutoAimVision extends CommandBase {
 
             //merges PhotonVision pose and Odometry pose to calculate to the lateset robot pose
             sDriveBase.getOdometry().addVisionMeasurement(latestAprilPose2d, latestAprilTimestamp);
+            latestRobotPose = sDriveBase.getOdometry().getEstimatedPosition();
+
+
+
+            //claculate distance between aprilTag and robot (turn pose2d ---> pose3d)
+            targetToRobotDist = Math.sqrt(Math.pow(Math.abs(targetPose2d.getX() - latestRobotPose.getX()), 2.0)
+                + Math.pow(Math.abs(targetPose2d.getY() - latestRobotPose.getY()), 2.0));
+            
+            if(targetToRobotDist > greatestDistValue)
+                greatestDistValue = targetToRobotDist;
+
+            //get the direction the robot needs to go in
+            instThrottle = 0.5*(targetToRobotDist * Math.sin(result.getBestTarget().getYaw()))/greatestDistValue;
+            instStrafe = 0.5*(targetToRobotDist * Math.cos(result.getBestTarget().getYaw()))/greatestDistValue;
+        
+            //drive in the drection
+            sDriveBase.drive(instThrottle, instStrafe, );
+        }
+        else if(hadTargets){
+            
             latestRobotPose = sDriveBase.getOdometry().getEstimatedPosition();
 
             //claculate distance between aprilTag and robot (turn pose2d ---> pose3d)
@@ -95,20 +129,24 @@ public class AutoAimVision extends CommandBase {
             instStrafe = 0.5*(targetToRobotDist * Math.cos(result.getBestTarget().getYaw()))/greatestDistValue;
         
             //drive in the drection
-            sDriveBase.drive(instThrottle, instStrafe, -result.getBestTarget().getYaw());
+             
+            sDriveBase.drive(instThrottle, instStrafe, 0.0);
         }
-        
-        if((latestRobotPose == TARGET_POSE_WITH_ADJUST.get(result.getBestTarget().getFiducialId() + 8)) || !result.hasTargets())
+        else (){
             isFinished();
+        }
     
     }
 
     public boolean isFinished(){
-        return true;
+        return latestRobotPose == targetPose2d;
     }
 
 
     public void end(){
         //score with arm
+        
+        //resets hadTargets
+        hadTargets = false;
     }
 }

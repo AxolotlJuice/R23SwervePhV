@@ -63,7 +63,7 @@ public final class Constants
     new AprilTag(8, new Pose3d(Units.inchesToMeters( 40.45), Units.inchesToMeters( 42.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, 0.0)))
     ), Units.inchesToMeters(651.25), Units.inchesToMeters(315.5));
 
-
+    //Note to self: add adjustment after testing
     public static final ArrayList TARGET_POSE_WITH_ADJUST = new ArrayList<AprilTag>(Arrays.asList(
       new AprilTag(9, new Pose3d(Units.inchesToMeters(610.77), Units.inchesToMeters( 42.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, Math.PI))),
       new AprilTag(10, new Pose3d(Units.inchesToMeters(610.77), Units.inchesToMeters(108.19), Units.inchesToMeters(18.22), new Rotation3d(0.0, 0.0, Math.PI))),
