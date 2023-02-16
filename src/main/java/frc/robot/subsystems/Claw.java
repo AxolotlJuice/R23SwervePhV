@@ -1,8 +1,9 @@
 package frc.robot.subsystems;
 
-private TalonFX temp = new TalonFX();
-public class Claw {
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+public class Claw {
+    private TalonFX temp = new TalonFX();
     
     
 }
